@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+  <WixLocalization Culture="de-de" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+	<String Id="ApplicationName">PlathosysPhonerLite</String>
+  <String Id="ManufacturerName">Jarno Thierolf</String>
+  <String Id="DotNetFramworkNotAvailable">
+    Diese Anwenung benötigt das .NET Framwork 4.5.2. Bitte installieren Sie das .Net Framwork und starten Sie den Installer erneut.
+  </String>
+  <String Id="LaunchAfterInstall">Starte PlathosysPhonerLite</String>
+  <String Id="NewerVersion">Eine neuere Version von [ProductName] ist bereits installiert.</String>
+  <String Id="WindwosVersionToLow">Diese Anwendung wird erst ab Windows Vista, Windows Server 2008, oder höher unterstützt.</String>
+</WixLocalization>

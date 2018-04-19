@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
+  <Product Id="1ED9CB42-9AE9-49AB-9528-C1084622A25C" Name="!(loc.ApplicationName)" Language="1033" Version="1.0.0.0" Manufacturer="!(loc.ManufacturerName)" UpgradeCode="E795E458-9786-4661-BF62-2E2336E18E7B">
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+    <MajorUpgrade DowngradeErrorMessage="!(loc.NewerVersion)" />
+    <MediaTemplate EmbedCab="yes" />
+
+    <!--Check for .Net Framwork-->
+    <PropertyRef Id="WIX_IS_NETFRAMEWORK_452_OR_LATER_INSTALLED"/>
+    <Condition Message="!(loc.DotNetFramworkNotAvailable">
+      <![CDATA[Installed OR WIX_IS_NETFRAMEWORK_452_OR_LATER_INSTALLED]]>
+    </Condition>
+
+    <!--Block installation of an application on operating systems prior to Windows Vista/Windows Server 2008-->
+    <Condition Message="!(loc.WindwosVersionToLow)">
+      <![CDATA[Installed OR (VersionNT >= 600)]]>
+    </Condition>
+
+    <!--Setup icon-->
+    <Icon Id="Icon.ico" SourceFile="$(var.PlathosysPhonerLite.ProjectDir)Ressources\Icon.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="Icon.ico" />
+
+    <!--GUI-->
+    <UI>
+      <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+      <UIRef Id="WixUI_InstallDir" />
+      <Publish Dialog="ExitDialog"
+          Control="Finish"
+          Event="DoAction"
+          Value="Launch_PlathosysPhonerLite.exe">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+    </UI>
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="!(loc.LaunchAfterInstall)" />
+
+    <!--background pictures and license-->
+    <WixVariable Id="WixUIBannerBmp" Value="Images\installer_top-banner.bmp"/>
+    <WixVariable Id="WixUIDialogBmp" Value="Images\installer_background.bmp"/>
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.PlathosysPhonerLite.ProjectDir)Ressources\License.rtf"/>
+
+    <!--Custom Actions-->
+    <Property Id="WixShellExecTarget" Value="[#PlathosysPhonerLite.exe]" />
+    <CustomAction Id="Launch_PlathosysPhonerLite.exe" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
+
+    <!--Features to be installed-->
+    <Feature Id="ProductFeatureMainApplication" Title="!(loc.ApplicationName) - Main Application" Level="1">
+      <ComponentGroupRef Id="MainApplication" />
+      <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="ApplicationShortcutDesktop" />
+    </Feature>
+  </Product>
+
+  <!--Directory structure-->
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="PlathosysPhonerLite" />
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="PlathosysPhonerLite"/>
+      </Directory>
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+  </Fragment>
+
+  <!--Files to be installed-->
+  <Fragment>
+    <ComponentGroup Id="MainApplication" Directory="INSTALLFOLDER">
+      <Component Id="PlathosysPhonerLite.exe" Guid="85F37812-7AC7-4BDA-9CC6-16A2E5BFC0DD">
+        <File Id="PlathosysPhonerLite.exe" Source="$(var.PlathosysPhonerLite.TargetPath)" KeyPath="yes" Checksum="yes" />
+      </Component>
+      <Component Id="PlathosysApi.dll" Guid="A3DDCD58-7AAC-4724-8FFA-7E6795E68509">
+        <File Id="PlathosysApi.dll" Source="$(var.PlathosysPhonerLite.TargetDir)PlathosysApi.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="Interop.PhonerLite.dll" Guid="cda21916-a128-46cf-9313-ae398d87d935">
+        <File Id="Interop.PhonerLite.dll" Source="$(var.PlathosysPhonerLite.TargetDir)Interop.PhonerLite.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="License.rtf" Guid="B59AB63B-87DB-4435-832D-2D93B98B5EC0">
+        <File Id="License.rtf" Source="$(var.PlathosysPhonerLite.ProjectDir)Ressources\License.rtf" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <!--Shortcuts-->
+  <Fragment>
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="F232696C-6AC1-4755-AA6E-3E055D36EEDB">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="PlathosysPhonerLite"
+                  Description="Implements hook functionality for PhonerLite Client with Plathosys USB Handsets."
+                  Target="[#PlathosysPhonerLite.exe]"
+                  WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
+        <!--Icon="Icon.ico"/>-->
+        <Shortcut Id="UninstallProduct"
+                  Name="Uninstall PlathosysPhonerLite"
+                  Target="[SystemFolder]msiexec.exe"
+                  Arguments="/x [ProductCode]"
+                  Description="Uninstalls My Application" />
+        <RemoveFolder Id="RemoveApplicationProgramsFolder" Directory="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software\Microsoft\PlathosysPhonerLite" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="ApplicationShortcutDesktop" Guid="07F4126C-B091-4132-BBC6-074BDBF5E712">
+        <Shortcut Id="ApplicationDesktopShortcut"
+                  Name="PlathosysPhonerLite"
+                  Description="Implements hook functionality for PhonerLite Client with Plathosys USB Handsets."
+                  Target="[#PlathosysPhonerLite.exe]"
+                  WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
+        <RemoveFolder Id="RemoveDesktopFolder" Directory="DesktopFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software\Microsoft\PlathosysPhonerLite" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+</Wix>
